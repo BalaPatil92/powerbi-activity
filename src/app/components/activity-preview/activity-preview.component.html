@@ -1,16 +1,15 @@
 <!-- Backdrop + centered panel. Click on backdrop cancels. -->
 <div class="backdrop" (click)="onCancel()">
-  <!-- stopPropagation so clicks inside the panel don't cancel. -->
-  <div class="panel" (click)="$event.stopPropagation()">
+  <div class="panel mat-card" (click)="$event.stopPropagation()">
     <header class="panel-head">
       <div>
-        <h2 class="panel-title">Activity preview</h2>
+        <h2 class="panel-title">Report Activity Preview</h2>
         <p class="panel-sub">
-          Review everything that will be sent to the AI.
+          Review all captured filter choices and page activity before sending to AI.
         </p>
       </div>
-      <button class="btn-secondary" type="button" (click)="onCancel()">
-        ✕
+      <button class="mat-btn mat-btn-icon mat-btn-sm" type="button" (click)="onCancel()" title="Close">
+        <span class="material-symbols-outlined">close</span>
       </button>
     </header>
 
@@ -18,9 +17,7 @@
     <div class="meta">
       <div>
         <span class="meta-label">User</span>
-        <span class="meta-value"
-          >{{ preview().user.name }} ({{ preview().user.userId }})</span
-        >
+        <span class="meta-value">{{ preview().user.name }} ({{ preview().user.userId }})</span>
       </div>
       <div>
         <span class="meta-label">Collected at</span>
@@ -28,79 +25,78 @@
       </div>
       <div>
         <span class="meta-label">Reports / Pages</span>
-        <span class="meta-value"
-          >{{ preview().reports.length }} / {{ totalPages() }}</span
-        >
+        <span class="meta-value">{{ preview().reports.length }} / {{ totalPages() }}</span>
       </div>
     </div>
 
     <div class="body">
       @if (isEmpty()) {
-      <p class="empty">
-        No activity captured yet. Embed a report, interact with filters and
-        slicers, then try again.
-      </p>
+        <p class="empty">
+          No activity captured yet. Embed a report, interact with filters and slicers, then try again.
+        </p>
       } @else {
-      <!-- Human-readable summary grouped by report -> page-wise -->
-      @for (report of preview().reports; track report.reportId) {
-      <section class="report-block">
-        <h3 class="report-title">
-          Report: <code>{{ report.reportId }}</code>
-        </h3>
-        <p class="report-url">{{ report.embedUrl }}</p>
+        <!-- Human-readable summary grouped by report -> page-wise -->
+        @for (report of preview().reports; track report.reportId) {
+          <section class="report-block">
+            <h3 class="report-title">
+              Report: <code>{{ report.reportId }}</code>
+            </h3>
+            <p class="report-url">{{ report.embedUrl }}</p>
 
-        <div class="chip-row">
-          <span class="tag"
-            >Report filters: {{ report.reportFilters.length }}</span
-          >
-        </div>
+            <div class="chip-row">
+              <span class="tag">Report filters: {{ report.reportFilters.length }}</span>
+            </div>
 
-        @for (page of report.pages; track page.pageName) {
-        <div class="page-block">
-          <div class="page-head">
-            <span class="page-name">{{ page.displayName || page.pageName }}</span>
-            <span class="page-time">last visited {{ page.lastVisited }}</span>
-          </div>
-          <ul class="page-facts">
-            <li>Page filters: {{ page.pageFilters.length }}</li>
-            <li>
-              Slicers:
-              @if (page.slicerStates.length === 0) { none } @else {
-              @for (s of page.slicerStates; track s.visualName) {
-              <span class="slicer-tag">{{ s.title }}</span>
-              }
-              }
-            </li>
-          </ul>
-        </div>
+            @for (page of report.pages; track page.pageName) {
+              <div class="page-block">
+                <div class="page-head">
+                  <span class="page-name">{{ page.displayName || page.pageName }}</span>
+                  <span class="page-time">last visited {{ page.lastVisited }}</span>
+                </div>
+                <ul class="page-facts">
+                  <li>Page filters: {{ page.pageFilters.length }}</li>
+                  <li>
+                    Slicers:
+                    @if (page.slicerStates.length === 0) { none } @else {
+                      @for (s of page.slicerStates; track s.visualName) {
+                        <span class="slicer-tag">{{ s.title }}</span>
+                      }
+                    }
+                  </li>
+                </ul>
+              </div>
+            }
+          </section>
         }
-      </section>
-      }
       }
     </div>
 
     <!-- Expandable pretty-printed JSON view -->
     <div class="json-toggle">
-      <button class="btn-secondary" type="button" (click)="toggleJson()">
-        {{ showJson() ? 'Hide' : 'Show' }} raw JSON
+      <button class="mat-btn mat-btn-tonal mat-btn-sm" type="button" (click)="toggleJson()">
+        <span class="material-symbols-outlined">{{ showJson() ? 'expand_less' : 'code' }}</span>
+        <span>{{ showJson() ? 'Hide Raw JSON' : 'View Raw JSON' }}</span>
       </button>
     </div>
+
     @if (showJson()) {
-    <pre class="json-view">{{ prettyJson() }}</pre>
+      <pre class="json-view">{{ prettyJson() }}</pre>
     }
 
-    <!-- Actions -->
+    <!-- Small Material Design Action Buttons -->
     <footer class="panel-foot">
-      <button class="btn-secondary" type="button" (click)="onCancel()">
-        Cancel
+      <button class="mat-btn mat-btn-outlined mat-btn-sm" type="button" (click)="onCancel()">
+        <span class="material-symbols-outlined">cancel</span>
+        <span>Cancel</span>
       </button>
       <button
-        class="btn-primary"
+        class="mat-btn mat-btn-filled mat-btn-sm"
         type="button"
         [disabled]="isEmpty()"
         (click)="onConfirm()"
       >
-        Confirm &amp; Send to AI
+        <span class="material-symbols-outlined">send</span>
+        <span>Confirm &amp; Send to AI</span>
       </button>
     </footer>
   </div>

@@ -256,6 +256,15 @@ export class DashboardComponent implements OnInit {
     this.showPreview.set(true);
   }
 
+  /** Option to clear all saved localStorage data for current user. */
+  async onClearStorage(): Promise<void> {
+    await this.powerbi.clearAllUserContexts(this.user.userId);
+    this.history.set([]);
+    await this.storage.removeItem(this.historyKey());
+    // Re-embed current report with clean default state
+    await this.onEmbed(this.urlControl.value);
+  }
+
   onPreviewCancel(): void {
     this.showPreview.set(false);
   }

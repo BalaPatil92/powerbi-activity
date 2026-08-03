@@ -146,6 +146,17 @@ body {
   }
 }
 
+.mat-btn-sm {
+  height: 28px !important;
+  padding: 0 10px !important;
+  font-size: 11.5px !important;
+  border-radius: var(--mat-radius-m) !important;
+
+  .material-symbols-outlined {
+    font-size: 15px !important;
+  }
+}
+
 /* ---- Material Outlined Input ---- */
 .mat-field {
   display: flex;

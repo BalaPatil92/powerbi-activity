@@ -37,6 +37,17 @@
         <span>Paste URL</span>
       </button>
 
+      <!-- Clear Cache Button -->
+      <button
+        type="button"
+        class="mat-btn mat-btn-outlined mat-btn-sm clear-cache-btn"
+        (click)="onClearStorage()"
+        title="Clear all saved filter selections and localStorage context"
+      >
+        <span class="material-symbols-outlined">delete_sweep</span>
+        <span>Clear Saved Filters</span>
+      </button>
+
       <!-- Side Panel Toggle -->
       <button
         type="button"

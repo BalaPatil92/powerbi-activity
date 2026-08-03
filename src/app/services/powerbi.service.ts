@@ -274,7 +274,14 @@ export class PowerbiService {
         }
       }
 
-      // Build a typed embed configuration.
+      // Pre-load saved filters from localStorage before embedding
+      const key = this.ctxKey(userId, reportId);
+      const savedCtx = await this.storage.getItem<ReportContext>(key);
+      const initialFilters: models.IFilter[] = savedCtx?.reportFilters?.length
+        ? savedCtx.reportFilters
+        : [];
+
+      // Build a typed embed configuration with pre-restored filters.
       const config: pbi.IEmbedConfiguration = {
         type: 'report',
         embedUrl: effectiveEmbedUrl,
@@ -282,6 +289,7 @@ export class PowerbiService {
         accessToken,
         tokenType,
         permissions: models.Permissions.Read,
+        filters: initialFilters,
         settings: {
           panes: {
             filters: { visible: true, expanded: false },
@@ -567,6 +575,17 @@ export class PowerbiService {
     // Newest first for a nicer preview ordering.
     results.sort((a, b) => Date.parse(b.savedAt) - Date.parse(a.savedAt));
     return results;
+  }
+
+  /** Clears all stored context entries in localStorage for a given user. */
+  async clearAllUserContexts(userId: string): Promise<void> {
+    const keys = await this.storage.getKeysByPrefix(CTX_PREFIX);
+    for (const k of keys) {
+      const ctx = await this.storage.getItem<ReportContext>(k);
+      if (ctx && ctx.userId === userId) {
+        await this.storage.removeItem(k);
+      }
+    }
   }
 
   /** Builds the ctx storage key. */

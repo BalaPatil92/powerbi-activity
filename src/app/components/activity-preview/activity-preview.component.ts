@@ -36,6 +36,7 @@ export class ActivityPreviewComponent {
   readonly preview = input.required<ActivityPreview>();
 
   /** Emitted when the user confirms sending to AI. */
+  readonly confirm = output<void>();
   readonly confirmSend = output<void>();
 
   /** Emitted when the user cancels. */
@@ -57,6 +58,7 @@ export class ActivityPreviewComponent {
   }
 
   onConfirm(): void {
+    this.confirm.emit();
     this.confirmSend.emit();
   }
 
