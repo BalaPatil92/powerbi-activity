@@ -249,6 +249,8 @@ export class DashboardComponent implements OnInit {
   // ============================================================
 
   async onSendToAI(): Promise<void> {
+    // Explicitly capture active report page filters + slicer state to localStorage first
+    await this.powerbi.captureActivePage();
     const preview = await this.chatbot.buildActivityPreview(this.user);
     this.previewData.set(preview);
     this.showPreview.set(true);

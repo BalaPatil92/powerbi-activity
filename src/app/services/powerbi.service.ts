@@ -345,9 +345,9 @@ export class PowerbiService {
 
   /**
    * Capture the active page's filters + slicers and merge into the stored,
-   * page-wise ReportContext. Resilient: logs and returns on any failure.
+   * page-wise ReportContext in localStorage.
    */
-  private async captureActivePage(): Promise<void> {
+  async captureActivePage(): Promise<void> {
     const report = this.currentReport;
     if (!report) {
       return;
