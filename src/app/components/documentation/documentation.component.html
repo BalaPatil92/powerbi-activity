@@ -1,0 +1,118 @@
+<div class="doc-container">
+  <!-- Hero Section -->
+  <header class="doc-hero">
+    <div class="hero-badge">Documentation & Report Index</div>
+    <h1>Power BI Workspace Reports Catalog</h1>
+    <p class="hero-subtitle">
+      Explore, copy, or launch official Power BI workspace reports directly into the interactive AI portal.
+      These reports are pre-configured with workspace parameters for instant embedding and context capture.
+    </p>
+  </header>
+
+  <!-- Reports Grid Section -->
+  <section class="section-block">
+    <div class="section-header">
+      <h2>Documented Reports</h2>
+      <span class="report-count">{{ reports.length }} Active Reports</span>
+    </div>
+
+    <div class="reports-grid">
+      @for (report of reports; track report.id) {
+        <article class="report-card">
+          <div class="card-top">
+            <div class="report-icon">{{ report.icon }}</div>
+            <div class="report-meta">
+              <span class="category-pill">{{ report.category }}</span>
+              <h3 class="report-title">{{ report.name }}</h3>
+            </div>
+          </div>
+
+          <p class="report-desc">{{ report.description }}</p>
+
+          <div class="tag-list">
+            @for (tag of report.tags; track tag) {
+              <span class="tag-chip">#{{ tag }}</span>
+            }
+          </div>
+
+          <div class="url-box">
+            <span class="url-label">Report URL:</span>
+            <code class="url-text" [title]="report.url">{{ report.url }}</code>
+          </div>
+
+          <div class="card-details">
+            <div class="detail-item">
+              <span class="detail-label">Workspace ID:</span>
+              <span class="detail-val">{{ report.groupId }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Report ID:</span>
+              <span class="detail-val">{{ report.reportId }}</span>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <button
+              type="button"
+              class="btn-primary embed-btn"
+              (click)="openInDashboard(report.url)"
+            >
+              ⚡ Embed in Dashboard
+            </button>
+            <button
+              type="button"
+              class="btn-secondary copy-btn"
+              (click)="copyUrl(report)"
+            >
+              @if (copiedId() === report.id) {
+                ✓ Copied!
+              } @else {
+                📋 Copy URL
+              }
+            </button>
+            <a
+              [href]="report.url"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="direct-link"
+              title="Open direct in Power BI Service"
+            >
+              ↗ Power BI
+            </a>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <!-- Developer & Setup Documentation Block -->
+  <section class="section-block integration-guide">
+    <h2>Embedding & API Integration Reference</h2>
+    <div class="guide-cards-grid">
+      <div class="guide-card">
+        <div class="guide-step">1</div>
+        <h3>URL Pattern</h3>
+        <p>
+          Power BI report links follow the standard workspace format:<br>
+          <code>https://app.powerbi.com/groups/&#123;groupId&#125;/reports/&#123;reportId&#125;/&#123;section&#125;</code>
+        </p>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-step">2</div>
+        <h3>Token Generation</h3>
+        <p>
+          The portal automatically extracts the <code>groupId</code> and <code>reportId</code> from the URL, calls the Python FastAPI backend service principal, and retrieves a short-lived Power BI Embed Token.
+        </p>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-step">3</div>
+        <h3>AI Context Synthesis</h3>
+        <p>
+          When interacting with reports, page switches, active filters, and slicer selections are debounced and stored page-by-page to generate slide outlines via Anthropic AI.
+        </p>
+      </div>
+    </div>
+  </section>
+</div>

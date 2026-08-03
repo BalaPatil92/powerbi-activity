@@ -1,0 +1,8 @@
+# Version floors chosen so pip installs prebuilt wheels (no Rust build needed)
+# on current Python (3.11–3.13). If you're on Python 3.13+, these all ship wheels.
+fastapi>=0.115.6
+uvicorn[standard]>=0.32.1
+msal>=1.31.1
+requests>=2.32.3
+python-dotenv>=1.0.1
+pydantic>=2.10.4

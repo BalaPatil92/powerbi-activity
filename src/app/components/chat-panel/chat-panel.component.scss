@@ -1,0 +1,99 @@
+.chat-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+}
+
+.hint {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 0;
+  color: var(--text-muted);
+}
+
+.error-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 8px 0;
+}
+
+.cards {
+  display: grid;
+  gap: 12px;
+}
+
+.slide-card {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  background: var(--surface);
+}
+
+.slide-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.slide-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--primary);
+  border-radius: 999px;
+  padding: 2px 9px;
+  white-space: nowrap;
+}
+
+.slide-title {
+  margin: 0;
+  font-size: 15px;
+}
+
+.bullets {
+  margin: 6px 0 10px;
+  padding-left: 20px;
+  font-size: 13px;
+}
+
+.bullets li {
+  margin-bottom: 3px;
+}
+
+.visual {
+  font-size: 13px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+}
+
+.visual-label {
+  color: var(--text-muted);
+  margin-right: 6px;
+}
+
+.visual-value {
+  font-weight: 600;
+}

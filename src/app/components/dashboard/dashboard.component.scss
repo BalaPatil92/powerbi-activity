@@ -1,0 +1,142 @@
+.dashboard {
+  display: grid;
+  gap: 18px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.card-title {
+  margin: 0 0 12px;
+  font-size: 16px;
+}
+
+/* ---- Embed ---- */
+.embed-row {
+  display: flex;
+  gap: 10px;
+}
+
+.embed-row input {
+  flex: 1;
+}
+
+.embed-error {
+  margin: 10px 0 0;
+}
+
+.token-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.token-row input {
+  flex: 1;
+}
+
+.token-type {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.token-hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.token-hint code {
+  background: var(--bg);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.history {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.history-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.url-chip {
+  background: var(--chip-bg);
+  color: var(--primary-hover);
+  border: 1px solid transparent;
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  max-width: 100%;
+}
+
+.url-chip:hover {
+  border-color: var(--primary);
+}
+
+/* ---- Report ---- */
+.report-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.report-toolbar .card-title {
+  margin: 0;
+}
+
+.report-host {
+  width: 100%;
+  height: 560px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* Power BI injects an <iframe>; make it fill the host.
+   ::ng-deep pierces view encapsulation to reach the SDK-injected iframe. */
+.report-host ::ng-deep iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.placeholder {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text-muted);
+  padding: 20px;
+}
+
+/* ---- Instruction field ---- */
+.field {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 13px;
+}

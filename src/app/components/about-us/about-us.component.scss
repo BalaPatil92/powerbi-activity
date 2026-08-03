@@ -1,0 +1,124 @@
+.about-container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.hero-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 36px 32px;
+  box-shadow: var(--shadow);
+
+  .hero-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: var(--chip-bg);
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 12px;
+    border-radius: 16px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    margin: 0 0 12px 0;
+    font-size: 26px;
+    color: var(--text);
+  }
+
+  .hero-text {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 800px;
+  }
+}
+
+.section-block {
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 18px 0;
+    color: var(--text);
+  }
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.feature-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .feature-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+
+  h3 {
+    margin: 0 0 8px 0;
+    font-size: 17px;
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.team-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+  box-shadow: var(--shadow);
+
+  .member-avatar {
+    font-size: 40px;
+    margin-bottom: 12px;
+  }
+
+  .member-name {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+  }
+
+  .member-role {
+    display: block;
+    font-size: 13px;
+    color: var(--primary);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .member-bio {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.45;
+  }
+}

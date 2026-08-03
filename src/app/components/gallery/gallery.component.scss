@@ -1,0 +1,128 @@
+.gallery-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.gallery-header {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  box-shadow: var(--shadow);
+
+  h1 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    color: var(--text);
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  .filter-btn {
+    background: var(--surface);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover {
+      color: var(--text);
+      background: #f0f2f5;
+    }
+
+    &.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+  }
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.gallery-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .card-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+
+    .card-icon {
+      font-size: 32px;
+    }
+
+    .card-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 12px;
+      background: var(--chip-bg);
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  .card-content {
+    flex: 1;
+
+    .card-title {
+      margin: 0 0 6px 0;
+      font-size: 16px;
+      color: var(--text);
+    }
+
+    .card-desc {
+      margin: 0 0 14px 0;
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .card-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+  }
+
+  .card-actions {
+    .load-btn {
+      width: 100%;
+    }
+  }
+}

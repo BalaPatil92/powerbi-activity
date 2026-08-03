@@ -1,0 +1,37 @@
+<div class="about-container">
+  <section class="hero-card">
+    <div class="hero-badge">About Power BI + AI Portal</div>
+    <h1>Empowering Business Intelligence with Generative AI</h1>
+    <p class="hero-text">
+      Our portal bridges the gap between deep data analytics and executive presentation generation.
+      By pairing Power BI's interactive dashboards with AI slide deck synthesis, decision-makers save hours of manual report assembly.
+    </p>
+  </section>
+
+  <section class="section-block">
+    <h2 class="section-title">Core Capabilities</h2>
+    <div class="features-grid">
+      @for (feature of keyFeatures; track feature.title) {
+        <div class="feature-card">
+          <div class="feature-icon">{{ feature.icon }}</div>
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.description }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="section-block">
+    <h2 class="section-title">Our Team</h2>
+    <div class="team-grid">
+      @for (member of teamMembers; track member.name) {
+        <div class="team-card">
+          <div class="member-avatar">{{ member.avatar }}</div>
+          <h3 class="member-name">{{ member.name }}</h3>
+          <span class="member-role">{{ member.role }}</span>
+          <p class="member-bio">{{ member.bio }}</p>
+        </div>
+      }
+    </div>
+  </section>
+</div>

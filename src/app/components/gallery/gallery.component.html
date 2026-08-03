@@ -1,0 +1,48 @@
+<div class="gallery-container">
+  <header class="gallery-header">
+    <h1>Report & Dashboard Gallery</h1>
+    <p>Browse pre-built Power BI dashboard templates and enterprise analytics showcases.</p>
+  </header>
+
+  <!-- Category filter tabs -->
+  <div class="filter-tabs">
+    @for (cat of categories; track cat) {
+      <button
+        type="button"
+        class="filter-btn"
+        [class.active]="selectedCategory() === cat"
+        (click)="filterCategory(cat)"
+      >
+        {{ cat }}
+      </button>
+    }
+  </div>
+
+  <!-- Gallery grid -->
+  <div class="gallery-grid">
+    @for (item of filteredItems; track item.id) {
+      <div class="gallery-card">
+        <div class="card-icon-wrap">
+          <span class="card-icon">{{ item.thumbnailIcon }}</span>
+          <span class="card-badge">{{ item.category }}</span>
+        </div>
+        <div class="card-content">
+          <h3 class="card-title">{{ item.title }}</h3>
+          <p class="card-desc">{{ item.description }}</p>
+          <div class="card-meta">
+            <span class="meta-pages">📄 {{ item.pagesCount }} Pages</span>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button
+            type="button"
+            class="btn-primary load-btn"
+            (click)="openInDashboard(item.embedUrl)"
+          >
+            Load in Dashboard
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<!--
+=============================================================================
+  POWER BI PORTAL + AI PPT AGENT  —  AngularJS 1.8 POC
+=============================================================================
+
+  WHAT THIS IS
+  ------------
+  A single-page AngularJS app that:
+    1. Embeds ONE Power BI report that contains multiple pages (the report's own
+       page tabs are the navigation — there is no separate report list).
+    2. Captures state PER PAGE, per user: whenever the user changes a filter or
+       slicer or switches pages, that page's context is saved to localStorage
+       under key  ctx_<userId>_<reportId>_<pageName>  and restored when the user
+       returns to that page.
+    3. Has a "Send to AI" button that first captures the current page, then
+       gathers ALL saved page contexts for the user into one JSON payload and
+       hands it to the AI chatbot, which asks the Anthropic API to produce a
+       slide-by-slide PPT outline (rendered as cards, with a "Copy JSON" button).
+
+  LOGIN (POC)
+  -----------
+  The app opens on a login page by default. Two demo accounts are defined in
+  the USERS constant in app.js:
+        demo1 / demo123   (Demo User One,  userId u123)
+        demo2 / demo123   (Demo User Two,  userId u456)
+  Auth is client-side and for demo only — replace AuthService with a real
+  identity provider (AAD/MSAL or a backend /api/login) before production.
+  Each account's saved contexts are namespaced by userId, so the two users
+  keep completely separate filter/slicer state.
+
+  HOW TO RUN
+  ----------
+  Option A (simplest): just open this index.html in a browser (file://).
+      - Routing uses hashbang (#/ for the report, #/login) so no server is required.
+      - localStorage works from file://.
+      - NOTE: The Anthropic API call may be blocked by CORS from file://; if so,
+        use Option B.
+  Option B (recommended): serve the folder with any static server, e.g.
+      python -m http.server 8080
+      then open http://localhost:8080/
+      (or:  npx http-server -p 8080)
+
+  WHERE TO PUT THE REAL EMBED URL / TOKEN
+  ---------------------------------------
+    * Embed URL / reportId:  edit the EMBED_REPORT constant in app.js.
+      Replace "PLACEHOLDER-REPORT-GUID" with your real reportId (and add
+      &groupId=<workspaceId> if needed). While the URL contains "PLACEHOLDER"
+      the app shows a "Configure the report" message instead of embedding.
+    * Embed token:  services/powerbiService.js -> getEmbedToken(reportId).
+      It currently returns a MOCK token. Wire it to your backend token endpoint
+      (Power BI "Embed for your customers" flow generates the token server-side).
+    * Anthropic API key:  edit the AI_CONFIG constant in app.js (apiKey).
+      For production, DO NOT ship the key to the browser — proxy the call
+      through your backend (see the PROXY sketch in chatbotService.js).
+
+  HOW TO SWAP localStorage -> AZURE REDIS CACHE
+  ---------------------------------------------
+    All storage goes through services/storageService.js, whose four methods
+    (getItem / setItem / removeItem / getKeysByPrefix) already return $q
+    promises. To move to Azure Redis Cache, replace ONLY the bodies of those
+    methods with $http calls to a backend REST endpoint (/api/cache/{key})
+    that fronts Azure Cache for Redis. No caller changes are needed. A complete
+    drop-in implementation is written out as a comment at the top of
+    storageService.js.
+
+=============================================================================
+-->
+<html lang="en" ng-app="biApp">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Power BI Portal + AI PPT Agent</title>
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- AngularJS 1.8.x core + ngRoute (vendored locally in /lib to avoid CDN
+       load failures and browser Tracking Prevention blocking the scripts). -->
+  <script src="lib/angular.min.js"></script>
+  <script src="lib/angular-route.min.js"></script>
+
+  <!-- Power BI JavaScript client v2.23.x. Exposes window.powerbi + window['powerbi-client']. -->
+  <script src="lib/powerbi.min.js"></script>
+</head>
+
+<body ng-controller="ShellController as shell">
+
+  <div class="app-shell">
+
+    <!-- ============ TOP BAR (only when signed in) ============ -->
+    <header class="topbar" ng-if="shell.isAuthenticated()">
+      <div class="brand">📊 BI Portal</div>
+      <div class="nav-dropdown-wrap" style="margin-left: 16px;">
+        <select class="nav-select" ng-model="shell.currentNav" ng-change="shell.onNavChange()" style="background:#2d3748; color:#fff; border:1px solid #4a5568; padding:6px 12px; border-radius:6px; font-weight:600; cursor:pointer;">
+          <option value="/">Home</option>
+          <option value="/about-us">About Us</option>
+          <option value="/gallery">Gallery</option>
+        </select>
+      </div>
+      <div class="topbar-spacer"></div>
+      <!-- Send to AI: captures the current page, then opens the chatbot with
+           ALL saved page contexts assembled into one JSON payload. -->
+      <button class="btn btn-primary" ng-click="shell.sendToAI()" ng-disabled="shell.capturing">
+        {{ shell.capturing ? 'Collecting…' : '💬 Send to AI' }}
+      </button>
+      <span class="topbar-user">{{ shell.currentUser().name }}</span>
+      <button class="logout-btn" ng-click="shell.logout()">Sign out</button>
+    </header>
+
+    <!-- ============ MAIN: routed view (login OR embedded report) ============ -->
+    <main class="main">
+      <!-- ngRoute injects the login/report template here -->
+      <div ng-view style="height:100%;"></div>
+    </main>
+
+  </div>
+
+  <!-- Chat panel directive; two-way bound to the shell's open state -->
+  <ai-chatbot ng-if="shell.isAuthenticated()" open="shell.chatOpen"></ai-chatbot>
+
+  <!-- ============ APP SCRIPTS ============
+       ORDER MATTERS: app.js runs `angular.module('biApp', [...])` which CREATES
+       the module. The service files use `angular.module('biApp')` (the getter),
+       so they must load AFTER app.js — otherwise you get [$injector:nomod biApp].
+       Registration order among these does not matter (all happen before the
+       ng-app bootstrap on DOMContentLoaded). -->
+  <script src="app.js"></script>
+  <script src="services/storageService.js"></script>
+  <script src="services/powerbiService.js"></script>
+  <script src="services/chatbotService.js"></script>
+
+
+</body>
+</html>

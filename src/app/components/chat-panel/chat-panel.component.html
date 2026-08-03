@@ -1,0 +1,65 @@
+<section class="chat-panel">
+  <header class="head">
+    <h2 class="title">AI slide outline</h2>
+    @if (state() === 'done' && slides().length) {
+    <button class="btn-secondary" type="button" (click)="copyJson()">
+      {{ copied() ? 'Copied!' : 'Copy JSON' }}
+    </button>
+    }
+  </header>
+
+  <!-- IDLE -->
+  @switch (state()) { @case ('idle') {
+  <p class="hint">
+    Interact with your report, then use <strong>Send To AI</strong> to generate
+    a slide-by-slide outline here.
+  </p>
+  }
+
+  <!-- LOADING -->
+  @case ('loading') {
+  <div class="loading">
+    <span class="spinner"></span>
+    <span>Generating slide outline…</span>
+  </div>
+  }
+
+  <!-- ERROR -->
+  @case ('error') {
+  <div class="error-box">
+    <p class="error-text">{{ errorMessage() || 'Something went wrong.' }}</p>
+    <button class="btn-primary" type="button" (click)="onRetry()">
+      Retry
+    </button>
+  </div>
+  }
+
+  <!-- DONE -->
+  @case ('done') { @if (slides().length === 0) {
+  <p class="hint">The AI returned no slides for the captured activity.</p>
+  } @else {
+  <div class="cards">
+    @for (slide of slides(); track $index) {
+    <article class="slide-card">
+      <div class="slide-head">
+        <span class="slide-num">Slide {{ $index + 1 }}</span>
+        <h3 class="slide-title">{{ slide.title }}</h3>
+      </div>
+
+      @if (slide.bullets.length) {
+      <ul class="bullets">
+        @for (bullet of slide.bullets; track $index) {
+        <li>{{ bullet }}</li>
+        }
+      </ul>
+      }
+
+      <div class="visual">
+        <span class="visual-label">Suggested visual:</span>
+        <span class="visual-value">{{ slide.suggestedVisual }}</span>
+      </div>
+    </article>
+    }
+  </div>
+  } } }
+</section>

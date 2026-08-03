@@ -1,0 +1,113 @@
+<div class="dashboard">
+  <!-- ============ Embed controls ============ -->
+  <section class="card embed-card">
+    <h2 class="card-title">Embed a Power BI report</h2>
+
+    <div class="embed-row">
+      <input
+        type="text"
+        [formControl]="urlControl"
+        placeholder="Paste a https://app.powerbi.com embed URL…"
+        (keyup.enter)="onEmbed()"
+      />
+      <button class="btn-primary" type="button" (click)="onEmbed()">
+        Embed
+      </button>
+    </div>
+
+    <!-- By default the token is fetched from the Python service-principal API.
+         This optional field overrides that so you can render WITHOUT the
+         backend running (paste a token you already have). Leave blank to use
+         the backend flow. -->
+    <div class="token-row">
+      <input
+        type="text"
+        [formControl]="tokenControl"
+        placeholder="(Optional override) paste a token to skip the backend…"
+      />
+      <select [formControl]="tokenTypeControl" class="token-type">
+        <option value="Aad">Aad (user token)</option>
+        <option value="Embed">Embed (backend token)</option>
+      </select>
+    </div>
+    <p class="token-hint">
+      Leave blank to fetch an embed token from the Python API
+      (<code>{{ '/api/powerbi/embed-token' }}</code>). Fill it to override:
+      Aad = an Azure AD user token; Embed = a Power BI embed token.
+    </p>
+
+    @if (embedError()) {
+    <p class="error-text embed-error">{{ embedError() }}</p>
+    }
+
+    <!-- URL history chips (last 5 per user) -->
+    @if (history().length) {
+    <div class="history">
+      <span class="history-label">Recent:</span>
+      @for (url of history(); track url) {
+      <button
+        type="button"
+        class="url-chip"
+        [title]="url"
+        (click)="onChipClick(url)"
+      >
+        {{ url.length > 48 ? (url | slice : 0 : 48) + '…' : url }}
+      </button>
+      }
+    </div>
+    }
+  </section>
+
+  <!-- ============ Report container ============ -->
+  <section class="card report-card">
+    <div class="report-toolbar">
+      <h2 class="card-title">Report</h2>
+      <button
+        class="btn-primary"
+        type="button"
+        [disabled]="!hasEmbed()"
+        (click)="onSendToAI()"
+      >
+        Send To AI
+      </button>
+    </div>
+
+    <!-- Power BI embeds its iframe into this host element. -->
+    <div #reportHost class="report-host">
+      @if (!hasEmbed()) {
+      <div class="placeholder">
+        Paste an embed URL above and click <strong>Embed</strong> to load a
+        report here.
+      </div>
+      }
+    </div>
+  </section>
+
+  <!-- ============ Optional AI instruction + result panel ============ -->
+  <section class="card">
+    <label class="field">
+      <span class="label">Optional instruction for the AI</span>
+      <textarea
+        rows="2"
+        [formControl]="instructionControl"
+        placeholder="e.g. Focus on Q3 revenue and keep it to 5 slides."
+      ></textarea>
+    </label>
+
+    <app-chat-panel
+      [state]="chatState()"
+      [outline]="outline()"
+      [errorMessage]="chatError()"
+      (retry)="onRetry()"
+    />
+  </section>
+</div>
+
+<!-- ============ Activity preview modal ============ -->
+@if (showPreview() && previewData(); as preview) {
+<app-activity-preview
+  [preview]="preview"
+  (confirmSend)="onPreviewConfirm()"
+  (cancel)="onPreviewCancel()"
+/>
+}

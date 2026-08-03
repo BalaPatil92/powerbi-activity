@@ -1,0 +1,51 @@
+<div class="login-wrap">
+  <div class="login-card">
+    <h1 class="title">Sign in</h1>
+    <p class="subtitle">Power BI + AI presentation POC</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <label class="field">
+        <span class="label">Username</span>
+        <input
+          type="text"
+          formControlName="username"
+          autocomplete="username"
+          placeholder="user1"
+        />
+      </label>
+
+      <label class="field">
+        <span class="label">Password</span>
+        <input
+          type="password"
+          formControlName="password"
+          autocomplete="current-password"
+          placeholder="Demo@123"
+        />
+      </label>
+
+      @if (loginError()) {
+      <p class="error-text">Invalid credentials</p>
+      }
+
+      <button class="btn-primary submit" type="submit">Sign in</button>
+    </form>
+
+    <!-- POC convenience: show the two demo credential pairs as clickable hints. -->
+    <div class="hints">
+      <p class="hints-title">Demo credentials (click to fill):</p>
+      <div class="hint-chips">
+        @for (hint of demoHints; track hint.username) {
+        <button
+          type="button"
+          class="hint-chip"
+          (click)="useHint(hint)"
+          [title]="'Fill ' + hint.username"
+        >
+          {{ hint.username }} / {{ hint.password }}
+        </button>
+        }
+      </div>
+    </div>
+  </div>
+</div>

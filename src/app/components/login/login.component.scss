@@ -1,0 +1,77 @@
+:host {
+  display: block;
+}
+
+.login-wrap {
+  display: flex;
+  justify-content: center;
+  padding-top: 6vh;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  padding: 28px;
+}
+
+.title {
+  margin: 0 0 2px;
+  font-size: 22px;
+}
+
+.subtitle {
+  margin: 0 0 22px;
+  color: var(--text-muted);
+}
+
+.field {
+  display: block;
+  margin-bottom: 14px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.submit {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.hints {
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border);
+}
+
+.hints-title {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.hint-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hint-chip {
+  background: var(--chip-bg);
+  color: var(--primary-hover);
+  border: 1px solid transparent;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.hint-chip:hover {
+  border-color: var(--primary);
+}

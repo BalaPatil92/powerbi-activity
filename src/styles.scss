@@ -1,0 +1,121 @@
+/* ============================================================
+   Global styles — plain SCSS, clean minimal design.
+   No UI library. CSS custom properties drive the palette.
+   ============================================================ */
+
+:root {
+  --bg: #f4f6f9;
+  --surface: #ffffff;
+  --border: #e2e6ec;
+  --text: #1f2430;
+  --text-muted: #6b7280;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --danger: #dc2626;
+  --success: #16a34a;
+  --chip-bg: #eef2ff;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ---- Reusable primitives ---- */
+
+button {
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius);
+  padding: 9px 16px;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: #f0f2f5;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+input[type="text"],
+input[type="password"],
+textarea {
+  font-family: inherit;
+  font-size: 14px;
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.error-text {
+  color: var(--danger);
+  font-size: 13px;
+}
+
+/* ---- Simple spinner ---- */
+.spinner {
+  width: 22px;
+  height: 22px;
+  border: 3px solid rgba(37, 99, 235, 0.25);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
