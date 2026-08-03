@@ -1,9 +1,5 @@
 /* ============================================================
-   DashboardComponent — the main workspace.
-
-   - Embed URL textbox + Embed button + report container
-   - URL history chips (last 5 per user)
-   - "Send To AI" -> ActivityPreview modal -> ChatbotService -> ChatPanel
+   DashboardComponent — Full Viewport Power BI Workspace & AI Hub.
    ============================================================ */
 
 import {
@@ -17,8 +13,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
 import { PowerbiService } from '../../services/powerbi.service';
@@ -39,8 +34,15 @@ import {
   ChatPanelState,
 } from '../chat-panel/chat-panel.component';
 
-/** How many recent URLs to keep, per user. */
+/** Recent URL history cap per user. */
 const MAX_HISTORY = 5;
+
+export interface PresetReport {
+  name: string;
+  url: string;
+  icon: string;
+  category: string;
+}
 
 @Component({
   selector: 'app-dashboard',
@@ -60,51 +62,68 @@ export class DashboardComponent implements OnInit {
   private readonly powerbi = inject(PowerbiService);
   private readonly chatbot = inject(ChatbotService);
   private readonly storage = inject<StorageService>(STORAGE_PROVIDER);
-
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
-  /** The report host element (typed viewChild signal, Angular 18). */
+  /** Report host container reference. */
   private readonly reportContainer =
     viewChild.required<ElementRef<HTMLDivElement>>('reportHost');
 
-  /** Current user (guaranteed present behind the auth guard). */
+  /** Current user. */
   readonly user: DemoUser = this.auth.currentUser()!;
 
-  /**
-   * The embed URL input (Reactive Forms control).
-   * Prefilled with a sample report URL for POC convenience — clear it or
-   * paste your own, then click Embed.
-   */
+  /** Pre-configured Workspace Reports. */
+  readonly presetReports: PresetReport[] = [
+    {
+      name: 'Human Resource',
+      category: 'HR Analytics',
+      url: 'https://app.powerbi.com/groups/e22f49f6-bd72-4589-b9cd-b9dd9d942b7c/reports/07043f0b-ea7f-4dcd-8223-c4b571dcbeac/ReportSection?experience=power-bi',
+      icon: 'groups',
+    },
+    {
+      name: 'Sales & Return Sample',
+      category: 'Sales',
+      url: 'https://app.powerbi.com/groups/e22f49f6-bd72-4589-b9cd-b9dd9d942b7c/reports/c013bf6e-24eb-4793-85ec-424ccaa8d024/ReportSectiond8ab5d035cceb8586528?experience=power-bi',
+      icon: 'sync_alt',
+    },
+    {
+      name: 'Store Sales',
+      category: 'Retail POS',
+      url: 'https://app.powerbi.com/groups/e22f49f6-bd72-4589-b9cd-b9dd9d942b7c/reports/e52d3dc7-ba1b-4333-a9b8-299a0f1ac1e3/5b4ba98b5ad7f12a9ec0?experience=power-bi',
+      icon: 'storefront',
+    },
+    {
+      name: 'Supplychain',
+      category: 'Logistics',
+      url: 'https://app.powerbi.com/groups/e22f49f6-bd72-4589-b9cd-b9dd9d942b7c/reports/37eb681d-d48e-4d44-90f4-95abac3618b3/ReportSection?experience=power-bi',
+      icon: 'local_shipping',
+    },
+  ];
+
+  /** Embed URL input control. Defaults to Human Resource report. */
   readonly urlControl = new FormControl<string>(
-    'https://app.powerbi.com/reportEmbed?reportId=f6bfd646-b718-44dc-a378-b73e6b528204&groupId=be8908da-da25-452e-b220-163f52476cdd',
+    this.presetReports[0].url,
     {
       nonNullable: true,
       validators: [Validators.required],
     }
   );
 
-  /**
-   * OPTIONAL POC token input so a report can render without a backend.
-   * Paste an Azure AD access token (for ...reportEmbed org URLs) or a
-   * backend embed token. Leave blank to use the mock getEmbedToken().
-   */
+  /** Optional manual token override controls. */
   readonly tokenControl = new FormControl<string>('', { nonNullable: true });
-
-  /** Declares what kind of token was pasted (Aad = user token, Embed = backend). */
   readonly tokenTypeControl = new FormControl<'Aad' | 'Embed'>('Aad', {
     nonNullable: true,
   });
 
-  /** Inline embed error message. */
+  /** UI state signals. */
   readonly embedError = signal<string>('');
-
-  /** Whether a report is currently embedded. */
   readonly hasEmbed = signal(false);
-
-  /** Recent URL history chips for this user. */
   readonly history = signal<string[]>([]);
+  readonly sidePanelOpen = signal<boolean>(true);
+  readonly showCustomUrlModal = signal<boolean>(false);
+  readonly activeReportName = signal<string>(this.presetReports[0].name);
 
-  /** Optional user instruction sent alongside the payload. */
+  /** Optional instruction sent to AI. */
   readonly instructionControl = new FormControl<string>('', {
     nonNullable: true,
   });
@@ -119,12 +138,38 @@ export class DashboardComponent implements OnInit {
   readonly chatError = signal<string>('');
 
   async ngOnInit(): Promise<void> {
-    // Load this user's URL history on entry.
     await this.loadHistory();
     const queryUrl = this.route.snapshot.queryParamMap.get('embedUrl');
     if (queryUrl) {
       this.urlControl.setValue(queryUrl);
+      this.updateActiveNameFromUrl(queryUrl);
       await this.onEmbed(queryUrl);
+    } else {
+      // Auto embed default report
+      await this.onEmbed(this.urlControl.value);
+    }
+  }
+
+  toggleSidePanel(): void {
+    this.sidePanelOpen.update((v) => !v);
+  }
+
+  toggleCustomUrlModal(): void {
+    this.showCustomUrlModal.update((v) => !v);
+  }
+
+  selectPresetReport(preset: PresetReport): void {
+    this.urlControl.setValue(preset.url);
+    this.activeReportName.set(preset.name);
+    void this.onEmbed(preset.url);
+  }
+
+  private updateActiveNameFromUrl(url: string): void {
+    const match = this.presetReports.find((r) => r.url === url);
+    if (match) {
+      this.activeReportName.set(match.name);
+    } else {
+      this.activeReportName.set('Custom Power BI Report');
     }
   }
 
@@ -132,34 +177,30 @@ export class DashboardComponent implements OnInit {
   // EMBED
   // ============================================================
 
-  /** Handle the Embed button: validate, then embed by URL. */
   async onEmbed(url?: string): Promise<void> {
     this.embedError.set('');
 
     const raw = (url ?? this.urlControl.value).trim();
     if (!raw) {
-      this.embedError.set('Please paste a Power BI embed URL.');
+      this.embedError.set('Please select or paste a Power BI embed URL.');
       return;
     }
 
-    // Validate + extract/generate a reportId.
     const check = this.powerbi.validateEmbedUrl(raw);
     if (!check.valid) {
-      this.embedError.set(check.error ?? 'Invalid URL.');
+      this.embedError.set(check.error ?? 'Invalid URL format.');
       return;
     }
 
-    // Ensure the input reflects the URL being embedded (for chip re-embed).
     this.urlControl.setValue(raw);
+    this.updateActiveNameFromUrl(raw);
 
-    // Embed (guarded — never throws).
     const result = await this.powerbi.embedByUrl({
       container: this.reportContainer().nativeElement,
       embedUrl: raw,
       reportId: check.reportId,
       groupId: check.groupId,
       userId: this.user.userId,
-      // POC override: a pasted token lets the report render without the backend.
       manualToken: this.tokenControl.value,
       manualTokenType: this.tokenTypeControl.value,
     });
@@ -171,18 +212,17 @@ export class DashboardComponent implements OnInit {
     }
 
     this.hasEmbed.set(true);
-    // Record in per-user history.
+    this.showCustomUrlModal.set(false);
     await this.pushHistory(raw);
   }
 
-  /** Re-embed from a history chip. */
   async onChipClick(url: string): Promise<void> {
     this.urlControl.setValue(url);
     await this.onEmbed(url);
   }
 
   // ============================================================
-  // URL HISTORY (per user, last 5) — key: urlHistory_<userId>
+  // URL HISTORY
   // ============================================================
 
   private historyKey(): string {
@@ -195,7 +235,6 @@ export class DashboardComponent implements OnInit {
   }
 
   private async pushHistory(url: string): Promise<void> {
-    // De-duplicate, newest-first, cap at MAX_HISTORY.
     const current = this.history();
     const next = [url, ...current.filter((u) => u !== url)].slice(
       0,
@@ -206,33 +245,28 @@ export class DashboardComponent implements OnInit {
   }
 
   // ============================================================
-  // SEND TO AI: open preview -> confirm -> call API
+  // SEND TO AI
   // ============================================================
 
-  /** "Send To AI" button: build + show the activity preview first. */
   async onSendToAI(): Promise<void> {
     const preview = await this.chatbot.buildActivityPreview(this.user);
     this.previewData.set(preview);
     this.showPreview.set(true);
   }
 
-  /** Preview "Cancel". */
   onPreviewCancel(): void {
     this.showPreview.set(false);
   }
 
-  /** Preview "Confirm & Send to AI" -> make the single API call. */
   async onPreviewConfirm(): Promise<void> {
     this.showPreview.set(false);
     await this.runGeneration();
   }
 
-  /** "Retry" from the chat panel re-runs the generation. */
   async onRetry(): Promise<void> {
     await this.runGeneration();
   }
 
-  /** Build the payload and call Anthropic; drive the chat-panel state. */
   private async runGeneration(): Promise<void> {
     this.chatState.set('loading');
     this.chatError.set('');
@@ -254,5 +288,10 @@ export class DashboardComponent implements OnInit {
       this.chatError.set(message);
       this.chatState.set('error');
     }
+  }
+
+  logout(): void {
+    this.auth.logout();
+    this.router.navigate(['/login']);
   }
 }

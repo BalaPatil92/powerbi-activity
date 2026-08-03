@@ -1,113 +1,225 @@
-<div class="dashboard">
-  <!-- ============ Embed controls ============ -->
-  <section class="card embed-card">
-    <h2 class="card-title">Embed a Power BI report</h2>
-
-    <div class="embed-row">
-      <input
-        type="text"
-        [formControl]="urlControl"
-        placeholder="Paste a https://app.powerbi.com embed URL…"
-        (keyup.enter)="onEmbed()"
-      />
-      <button class="btn-primary" type="button" (click)="onEmbed()">
-        Embed
-      </button>
+<div class="dashboard-viewport">
+  <!-- Top Material Toolbar Header (48px fixed height) -->
+  <header class="mat-toolbar">
+    <div class="brand-group">
+      <div class="brand-logo">
+        <span class="material-symbols-outlined logo-icon">analytics</span>
+      </div>
+      <span class="brand-title">Power BI + AI Portal</span>
     </div>
 
-    <!-- By default the token is fetched from the Python service-principal API.
-         This optional field overrides that so you can render WITHOUT the
-         backend running (paste a token you already have). Leave blank to use
-         the backend flow. -->
-    <div class="token-row">
-      <input
-        type="text"
-        [formControl]="tokenControl"
-        placeholder="(Optional override) paste a token to skip the backend…"
-      />
-      <select [formControl]="tokenTypeControl" class="token-type">
-        <option value="Aad">Aad (user token)</option>
-        <option value="Embed">Embed (backend token)</option>
-      </select>
+    <!-- Active Report Badge -->
+    <div class="report-badge">
+      <span class="material-symbols-outlined badge-icon">equalizer</span>
+      <span class="active-title">{{ activeReportName() }}</span>
     </div>
-    <p class="token-hint">
-      Leave blank to fetch an embed token from the Python API
-      (<code>{{ '/api/powerbi/embed-token' }}</code>). Fill it to override:
-      Aad = an Azure AD user token; Embed = a Power BI embed token.
-    </p>
 
-    @if (embedError()) {
-    <p class="error-text embed-error">{{ embedError() }}</p>
-    }
-
-    <!-- URL history chips (last 5 per user) -->
-    @if (history().length) {
-    <div class="history">
-      <span class="history-label">Recent:</span>
-      @for (url of history(); track url) {
+    <!-- Toolbar Action Area -->
+    <div class="toolbar-actions">
+      <!-- AI Action Button -->
       <button
         type="button"
-        class="url-chip"
-        [title]="url"
-        (click)="onChipClick(url)"
-      >
-        {{ url.length > 48 ? (url | slice : 0 : 48) + '…' : url }}
-      </button>
-      }
-    </div>
-    }
-  </section>
-
-  <!-- ============ Report container ============ -->
-  <section class="card report-card">
-    <div class="report-toolbar">
-      <h2 class="card-title">Report</h2>
-      <button
-        class="btn-primary"
-        type="button"
-        [disabled]="!hasEmbed()"
+        class="mat-btn mat-btn-filled ai-btn"
         (click)="onSendToAI()"
       >
-        Send To AI
+        <span class="material-symbols-outlined">auto_awesome</span>
+        <span>Generate AI Slide Outline</span>
       </button>
-    </div>
 
-    <!-- Power BI embeds its iframe into this host element. -->
-    <div #reportHost class="report-host">
-      @if (!hasEmbed()) {
-      <div class="placeholder">
-        Paste an embed URL above and click <strong>Embed</strong> to load a
-        report here.
+      <!-- Custom URL Button -->
+      <button
+        type="button"
+        class="mat-btn mat-btn-tonal url-modal-btn"
+        (click)="toggleCustomUrlModal()"
+        title="Embed custom Power BI report URL"
+      >
+        <span class="material-symbols-outlined">link</span>
+        <span>Paste URL</span>
+      </button>
+
+      <!-- Side Panel Toggle -->
+      <button
+        type="button"
+        class="mat-btn mat-btn-icon"
+        (click)="toggleSidePanel()"
+        [title]="sidePanelOpen() ? 'Hide AI Context Panel' : 'Show AI Context Panel'"
+      >
+        <span class="material-symbols-outlined">
+          {{ sidePanelOpen() ? 'side_navigation' : 'dock_to_left' }}
+        </span>
+      </button>
+
+      <div class="divider"></div>
+
+      <!-- User Profile & Logout -->
+      <div class="user-chip">
+        <span class="material-symbols-outlined user-avatar">account_circle</span>
+        <span class="user-name">{{ user.name }}</span>
+        <button
+          type="button"
+          class="mat-btn mat-btn-icon logout-btn"
+          (click)="logout()"
+          title="Sign Out"
+        >
+          <span class="material-symbols-outlined">logout</span>
+        </button>
       </div>
+    </div>
+  </header>
+
+  <!-- Report Preset Quick Navigation Bar (36px fixed height) -->
+  <nav class="presets-bar">
+    <span class="bar-label">
+      <span class="material-symbols-outlined label-icon">dashboard_customize</span>
+      <span>Workspace Reports:</span>
+    </span>
+
+    <div class="preset-chips-scroll">
+      @for (preset of presetReports; track preset.name) {
+        <button
+          type="button"
+          class="mat-chip"
+          [class.active]="activeReportName() === preset.name"
+          (click)="selectPresetReport(preset)"
+        >
+          <span class="material-symbols-outlined chip-icon">{{ preset.icon }}</span>
+          <span>{{ preset.name }}</span>
+        </button>
       }
     </div>
-  </section>
 
-  <!-- ============ Optional AI instruction + result panel ============ -->
-  <section class="card">
-    <label class="field">
-      <span class="label">Optional instruction for the AI</span>
-      <textarea
-        rows="2"
-        [formControl]="instructionControl"
-        placeholder="e.g. Focus on Q3 revenue and keep it to 5 slides."
-      ></textarea>
-    </label>
+    @if (embedError()) {
+      <div class="header-error">
+        <span class="material-symbols-outlined">warning</span>
+        <span>{{ embedError() }}</span>
+      </div>
+    }
+  </nav>
 
-    <app-chat-panel
-      [state]="chatState()"
-      [outline]="outline()"
-      [errorMessage]="chatError()"
-      (retry)="onRetry()"
+  <!-- Main Viewport Workspace (Fills remaining height 100%, No outer scroll) -->
+  <main class="workspace-body">
+    <!-- Left / Main Area: Power BI Report Host Container -->
+    <section class="report-section">
+      <div #reportHost class="report-host-container">
+        @if (!hasEmbed() && !embedError()) {
+          <div class="report-placeholder">
+            <span class="material-symbols-outlined placeholder-icon">insert_chart</span>
+            <h3>Embedding Report...</h3>
+            <p>Please wait while the Power BI report initializes.</p>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Right Area: Collapsible Material AI & Context Drawer -->
+    @if (sidePanelOpen()) {
+      <aside class="ai-side-panel mat-card">
+        <header class="panel-header">
+          <div class="header-title">
+            <span class="material-symbols-outlined">psychology</span>
+            <span>AI Context & Outline</span>
+          </div>
+          <button
+            type="button"
+            class="mat-btn mat-btn-icon close-panel-btn"
+            (click)="toggleSidePanel()"
+            title="Close Panel"
+          >
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </header>
+
+        <!-- Instructions Input Area -->
+        <div class="instruction-box">
+          <label class="mat-label">Optional AI Instructions:</label>
+          <input
+            type="text"
+            [formControl]="instructionControl"
+            placeholder="e.g., Focus on Q3 revenue drop..."
+          />
+        </div>
+
+        <!-- Chat Panel / AI Output Section -->
+        <div class="panel-content-scroll">
+          <app-chat-panel
+            [state]="chatState()"
+            [outline]="outline()"
+            [errorMessage]="chatError()"
+            (retry)="onRetry()"
+          />
+        </div>
+
+        <footer class="panel-footer">
+          <button
+            type="button"
+            class="mat-btn mat-btn-filled full-width-btn"
+            (click)="onSendToAI()"
+          >
+            <span class="material-symbols-outlined">auto_awesome</span>
+            <span>Generate Presentation Outline</span>
+          </button>
+        </footer>
+      </aside>
+    }
+  </main>
+
+  <!-- Custom URL Dialog Overlay -->
+  @if (showCustomUrlModal()) {
+    <div class="modal-backdrop" (click)="toggleCustomUrlModal()">
+      <div class="modal-card mat-card" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <h3>Paste Custom Power BI Report URL</h3>
+          <button type="button" class="mat-btn mat-btn-icon" (click)="toggleCustomUrlModal()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </header>
+
+        <div class="modal-body">
+          <div class="mat-field">
+            <span class="mat-label">Power BI Embed URL</span>
+            <div class="mat-input-wrapper">
+              <span class="material-symbols-outlined">link</span>
+              <input
+                type="text"
+                class="has-icon"
+                [formControl]="urlControl"
+                placeholder="https://app.powerbi.com/groups/..."
+              />
+            </div>
+          </div>
+
+          <div class="mat-field">
+            <span class="mat-label">Optional Manual Access Token (POC Override)</span>
+            <div class="mat-input-wrapper">
+              <span class="material-symbols-outlined">key</span>
+              <input
+                type="text"
+                class="has-icon"
+                [formControl]="tokenControl"
+                placeholder="Paste Azure AD Token if testing without backend..."
+              />
+            </div>
+          </div>
+        </div>
+
+        <footer class="modal-footer">
+          <button type="button" class="mat-btn mat-btn-outlined" (click)="toggleCustomUrlModal()">
+            Cancel
+          </button>
+          <button type="button" class="mat-btn mat-btn-filled" (click)="onEmbed()">
+            Embed Report
+          </button>
+        </footer>
+      </div>
+    </div>
+  }
+
+  <!-- Activity Preview Modal Component -->
+  @if (showPreview() && previewData(); as preview) {
+    <app-activity-preview
+      [preview]="preview"
+      (cancel)="onPreviewCancel()"
+      (confirm)="onPreviewConfirm()"
     />
-  </section>
+  }
 </div>
-
-<!-- ============ Activity preview modal ============ -->
-@if (showPreview() && previewData(); as preview) {
-<app-activity-preview
-  [preview]="preview"
-  (confirmSend)="onPreviewConfirm()"
-  (cancel)="onPreviewCancel()"
-/>
-}

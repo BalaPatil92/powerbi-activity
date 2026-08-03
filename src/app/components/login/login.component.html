@@ -1,49 +1,69 @@
-<div class="login-wrap">
-  <div class="login-card">
-    <h1 class="title">Sign in</h1>
-    <p class="subtitle">Power BI + AI presentation POC</p>
+<div class="login-container">
+  <div class="login-card mat-card">
+    <div class="brand-header">
+      <div class="logo-badge">
+        <span class="material-symbols-outlined logo-icon">analytics</span>
+      </div>
+      <h1 class="title">Power BI + AI Portal</h1>
+      <p class="subtitle">Enter your workspace credentials to continue</p>
+    </div>
 
-    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-      <label class="field">
-        <span class="label">Username</span>
-        <input
-          type="text"
-          formControlName="username"
-          autocomplete="username"
-          placeholder="user1"
-        />
-      </label>
+    <form [formGroup]="form" (ngSubmit)="submit()" class="login-form" novalidate>
+      <div class="mat-field">
+        <span class="mat-label">Username</span>
+        <div class="mat-input-wrapper">
+          <span class="material-symbols-outlined">person</span>
+          <input
+            type="text"
+            class="has-icon"
+            formControlName="username"
+            autocomplete="username"
+            placeholder="e.g. user1"
+          />
+        </div>
+      </div>
 
-      <label class="field">
-        <span class="label">Password</span>
-        <input
-          type="password"
-          formControlName="password"
-          autocomplete="current-password"
-          placeholder="Demo@123"
-        />
-      </label>
+      <div class="mat-field">
+        <span class="mat-label">Password</span>
+        <div class="mat-input-wrapper">
+          <span class="material-symbols-outlined">lock</span>
+          <input
+            type="password"
+            class="has-icon"
+            formControlName="password"
+            autocomplete="current-password"
+            placeholder="••••••••"
+          />
+        </div>
+      </div>
 
       @if (loginError()) {
-      <p class="error-text">Invalid credentials</p>
+        <div class="error-banner">
+          <span class="material-symbols-outlined error-icon">error</span>
+          <span>Invalid username or password. Please try again.</span>
+        </div>
       }
 
-      <button class="btn-primary submit" type="submit">Sign in</button>
+      <button class="mat-btn mat-btn-filled submit-btn" type="submit">
+        <span>Sign In to Dashboard</span>
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </button>
     </form>
 
-    <!-- POC convenience: show the two demo credential pairs as clickable hints. -->
-    <div class="hints">
-      <p class="hints-title">Demo credentials (click to fill):</p>
-      <div class="hint-chips">
+    <!-- Demo Accounts Section -->
+    <div class="demo-section">
+      <span class="demo-title">Quick Demo Login:</span>
+      <div class="demo-chips">
         @for (hint of demoHints; track hint.username) {
-        <button
-          type="button"
-          class="hint-chip"
-          (click)="useHint(hint)"
-          [title]="'Fill ' + hint.username"
-        >
-          {{ hint.username }} / {{ hint.password }}
-        </button>
+          <button
+            type="button"
+            class="mat-chip"
+            (click)="useHint(hint)"
+            [title]="'Fill ' + hint.username"
+          >
+            <span class="material-symbols-outlined chip-icon">account_circle</span>
+            <span>{{ hint.username }}</span>
+          </button>
         }
       </div>
     </div>
